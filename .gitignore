@@ -1,0 +1,8 @@
+node_modules/
+logs/*
+package-lock.json
+.idea
+public/
+bing_image
+html.txt
+qiushibaike.txt

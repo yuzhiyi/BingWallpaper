@@ -1,0 +1,26 @@
+{
+  "name": "bingwallpaper",
+  "version": "1.0.0",
+  "description": "抓取 bing 的图片设置成桌面壁纸",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "nodejs",
+    "bing",
+    "壁纸"
+  ],
+  "author": "yuzhiyi",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^3.1.0",
+    "cheerio": "^1.0.0-rc.3",
+    "fs": "0.0.1-security",
+    "moment": "^2.24.0",
+    "node-schedule": "^1.3.2",
+    "path": "^0.12.7",
+    "request": "^2.88.0"
+  }
+}
