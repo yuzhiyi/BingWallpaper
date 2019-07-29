@@ -83,14 +83,16 @@ function initSetDesktopSchedule() {
     schedule.setSchedule(config.SENDDATE, () => {
         const bingImages = fs.readdirSync(filePath);
         let isSetUp, absolutePath, isAllSetUp = true, imagePath, isExistImage;
-        for (let row of bingImages) {
-            isSetUp = bingSetUpImages.includes(row);
+        let length = bingImages.length, bingImage;
+        for (let i =  length - 1; i >= 0; i--) {
+            bingImage = bingImages[i];
+            isSetUp = bingSetUpImages.includes(bingImage);
             if (!isSetUp) {
-                imagePath = path.join(filePath, row);
+                imagePath = path.join(filePath, bingImage);
                 isExistImage = fs.existsSync(imagePath);
                 if (isExistImage) {
                     bingSetUpImages.push(row);
-                    absolutePath = __dirname + '/' + path.join(filePath, row);
+                    absolutePath = __dirname + '/' + path.join(filePath, bingImage);
                     setDesktopBackground(absolutePath);
                     isAllSetUp = false;
                     break;
