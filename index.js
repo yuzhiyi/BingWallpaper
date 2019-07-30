@@ -24,16 +24,21 @@ function requestBingImage({index = 0, perpage = 10}) {
             if (!isExistFile) {
                 fs.mkdirSync(filePath);
             }
-            let url, image, fileName, imagePath, isExistImage;
+            let url, image, fileName, imagePath, isExistImage, absolutePath, isFirstImage = true;
             for (let i = 0, length = images.length; i < length; i++) {
                 image = images[i];
                 url = bing_url + image.url;
-                fileName = image.startdate + '.jpg';
+                fileName = image.enddate + '.jpg';
                 imagePath = path.join(filePath, fileName);
                 isExistImage = fs.existsSync(imagePath);
                 if (!isExistImage) {
                     try {
                         await utils.saveFile(imagePath, url);
+                        absolutePath = __dirname + '/' + path.join(filePath, fileName);
+                        if (isFirstImage) {
+                            setDesktopBackground(absolutePath);
+                            isFirstImage = false;
+                        }
                     } catch (e) {
                         console.log(e);
                     }
@@ -57,55 +62,69 @@ function initRequestBingImage() { // 获取bing图片
 }
 
 function initRequestDailyBingImageSchedule() { // 获取每日最新bing图片并删除旧的图片
+    requestDailyBingImage();
     schedule.setSchedule(config.DAILYSENDDATE, () => {
-        const nowDay = moment();
-        const nowDayFormat = nowDay.format('YYYYMMDD');
-        const fileName = nowDayFormat + '.jpg';
-        const imagePath = path.join(filePath, fileName);
-        const isExistTodayImage = fs.existsSync(imagePath);
-        if (!isExistTodayImage) {
-            requestBingImage({index: 0, perpage: 10});
-        }
-        const bingImages = fs.readdirSync(filePath);
-        let overDays;
-        for (let row of bingImages) {
-            overDays = Math.abs(moment(row.split('.')[0]).diff(nowDay, 'days'));
-            if (overDays > config.OVERDAYS) {
-                fs.unlink(path.join(filePath, row), () => {
-                    console.log('删除旧图片成功！');
-                });
-            }
-        }
+        requestDailyBingImage();
+        removeOverDaysImage();
     });
 }
 
-function initSetDesktopSchedule() {
+function initSetDesktopSchedule() { // 设置定时设置桌面壁纸
+    setDesktopBackground();
     schedule.setSchedule(config.SENDDATE, () => {
-        const bingImages = fs.readdirSync(filePath);
-        let isSetUp, absolutePath, isAllSetUp = true, imagePath, isExistImage;
-        let length = bingImages.length, bingImage;
-        for (let i =  length - 1; i >= 0; i--) {
-            bingImage = bingImages[i];
-            isSetUp = bingSetUpImages.includes(bingImage);
-            if (!isSetUp) {
-                imagePath = path.join(filePath, bingImage);
-                isExistImage = fs.existsSync(imagePath);
-                if (isExistImage) {
-                    bingSetUpImages.push(bingImage);
-                    absolutePath = __dirname + '/' + path.join(filePath, bingImage);
-                    setDesktopBackground(absolutePath);
-                    isAllSetUp = false;
-                    break;
-                }
-            }
-        }
-        if (isAllSetUp) {
-            bingSetUpImages = [];
-        }
+        setDesktopBackground();
     });
 }
 
-async function setDesktopBackground(absolutePath) {
+function requestDailyBingImage() {
+    const nowDay = moment();
+    const nowDayFormat = nowDay.format('YYYYMMDD');
+    const fileName = nowDayFormat + '.jpg';
+    const imagePath = path.join(filePath, fileName);
+    const isExistTodayImage = fs.existsSync(imagePath);
+    if (!isExistTodayImage) {
+        requestBingImage({index: 0, perpage: 10});
+    }
+}
+
+function removeOverDaysImage() {
+    const bingImages = fs.readdirSync(filePath);
+    let overDays;
+    for (let row of bingImages) {
+        overDays = Math.abs(moment(row.split('.')[0]).diff(nowDay, 'days'));
+        if (overDays > config.OVERDAYS) {
+            fs.unlink(path.join(filePath, row), () => {
+                console.log('删除旧图片成功！');
+            });
+        }
+    }
+}
+
+function setDesktopBackground() {
+    const bingImages = fs.readdirSync(filePath);
+    let isSetUp, absolutePath, isAllSetUp = true, imagePath, isExistImage;
+    let length = bingImages.length, bingImage;
+    for (let i =  length - 1; i >= 0; i--) {
+        bingImage = bingImages[i];
+        isSetUp = bingSetUpImages.includes(bingImage);
+        if (!isSetUp) {
+            imagePath = path.join(filePath, bingImage);
+            isExistImage = fs.existsSync(imagePath);
+            if (isExistImage) {
+                bingSetUpImages.push(bingImage);
+                absolutePath = __dirname + '/' + path.join(filePath, bingImage);
+                setDesktopBackgroundCmd(absolutePath);
+                isAllSetUp = false;
+                break;
+            }
+        }
+    }
+    if (isAllSetUp) {
+        bingSetUpImages = [];
+    }
+}
+
+async function setDesktopBackgroundCmd(absolutePath) {
     try {
         const cmd = `gsettings set org.gnome.desktop.background picture-uri 'file://${absolutePath}'`;
         await utils.execCmd(cmd);
