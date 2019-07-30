@@ -91,7 +91,7 @@ function initSetDesktopSchedule() {
                 imagePath = path.join(filePath, bingImage);
                 isExistImage = fs.existsSync(imagePath);
                 if (isExistImage) {
-                    bingSetUpImages.push(row);
+                    bingSetUpImages.push(bingImage);
                     absolutePath = __dirname + '/' + path.join(filePath, bingImage);
                     setDesktopBackground(absolutePath);
                     isAllSetUp = false;
