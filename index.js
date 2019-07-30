@@ -63,13 +63,14 @@ function initRequestBingImage() { // 获取bing图片
 
 function initRequestDailyBingImageSchedule() { // 获取每日最新bing图片并删除旧的图片
     requestDailyBingImage();
+    removeOverDaysImage();
     schedule.setSchedule(config.DAILYSENDDATE, () => {
         requestDailyBingImage();
         removeOverDaysImage();
     });
 }
 
-function initSetDesktopSchedule() { // 设置定时设置桌面壁纸
+function initSetDesktopSchedule() { // 定时设置桌面壁纸
     setDesktopBackground();
     schedule.setSchedule(config.SENDDATE, () => {
         setDesktopBackground();
@@ -88,6 +89,7 @@ function requestDailyBingImage() {
 }
 
 function removeOverDaysImage() {
+    const nowDay = moment();
     const bingImages = fs.readdirSync(filePath);
     let overDays;
     for (let row of bingImages) {
