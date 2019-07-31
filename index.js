@@ -71,7 +71,7 @@ function initRequestDailyBingImageSchedule() { // 获取每日最新bing图片�
 }
 
 function initSetDesktopSchedule() { // 定时设置桌面壁纸
-    if (isExistTodayImage) {
+    if (isExistTodayImage()) {
         setDesktopBackground();
     }
     schedule.setSchedule(config.SENDDATE, () => {
