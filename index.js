@@ -71,19 +71,25 @@ function initRequestDailyBingImageSchedule() { // 获取每日最新bing图片�
 }
 
 function initSetDesktopSchedule() { // 定时设置桌面壁纸
-    setDesktopBackground();
+    if (isExistTodayImage) {
+        setDesktopBackground();
+    }
     schedule.setSchedule(config.SENDDATE, () => {
         setDesktopBackground();
     });
 }
 
-function requestDailyBingImage() {
+function isExistTodayImage() {
     const nowDay = moment();
     const nowDayFormat = nowDay.format('YYYYMMDD');
     const fileName = nowDayFormat + '.jpg';
     const imagePath = path.join(filePath, fileName);
     const isExistTodayImage = fs.existsSync(imagePath);
-    if (!isExistTodayImage) {
+    return isExistTodayImage;
+}
+
+function requestDailyBingImage() {
+    if (!isExistTodayImage()) {
         requestBingImage({index: 0, perpage: 10});
     }
 }
@@ -127,6 +133,7 @@ function setDesktopBackground() {
 }
 
 async function setDesktopBackgroundCmd(absolutePath) {
+    console.warn(absolutePath);
     try {
         const cmd = `gsettings set org.gnome.desktop.background picture-uri 'file://${absolutePath}'`;
         await utils.execCmd(cmd);
